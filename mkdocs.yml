@@ -1,7 +1,52 @@
+# Project information
 site_name: My Docs
+site_author: nnstt1
+
+# Repository
+repo_name: nnstt1/docs
 repo_url: https://github.com/nnstt1/docs
 
-theme:
-  name: mkdocs
 docs_dir: source
 site_dir: docs
+
+# Configuration
+theme:
+  name: material
+  language: ja
+  features:
+    - navigation.tabs
+  palette:
+    scheme: default
+    primary: teal
+    accent: indigo
+
+# Plugins
+plugins:
+  - search:
+      lang:
+        - en
+        - ja
+  - minify:
+      minify_html: true
+
+# Customization
+extra:
+  search:
+    language: 'jp'
+
+# Extensions
+markdown_extensions:
+  - admonition
+  - meta
+  - pymdownx.highlight
+  - pymdownx.superfences
+
+# Page tree
+nav:
+  - Tech:
+    - mkdocs:
+      - ./tech/mkdocs/index.md
+    - Ansible:
+      - ./tech/ansible/index.md
+    - Prometheus:
+      - ./tech/prometheus/snmp-exporter.md
