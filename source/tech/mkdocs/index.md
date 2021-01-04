@@ -1,6 +1,0 @@
-# Index
-
-```sh
-mkdocs build
-```
-

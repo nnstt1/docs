@@ -40,16 +40,20 @@ markdown_extensions:
   - meta
   - pymdownx.highlight
   - pymdownx.superfences
+  - attr_list
 
 # Page tree
 nav:
   - Tech:
     - index.md
-    - mkdocs:
-      - ./tech/mkdocs/index.md
+    - MkDocs:
+      - ./tech/mkdocs.md
     - Ansible:
       - ./tech/ansible/index.md
+      - ./tech/ansible/tower.md
     - Prometheus:
       - ./tech/prometheus/snmp-exporter.md
     - VMware:
       - ./tech/vmware/esxi.md
+  - DIY:
+    - ./diy/about.md
