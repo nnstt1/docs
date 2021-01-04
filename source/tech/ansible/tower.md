@@ -92,8 +92,8 @@ $ sudo yum install glibc-langpack-en
 
 Ansible Tower にログインするとサブスクリプション登録画面が表示されます。
 
-![subscription](/tech/ansible/images/ansible-tower-subscription.png)
+![subscription](./images/ansible-tower-subscription.png)
 
 USERNAME と PASSWORD を入力して「GET SUBSCRIPTIONS」を押下すると、ライセンス選択画面が表示されます。
 
-![select lisence](/tech/ansible/images/ansible-tower-select-lisence.png)
+![select lisence](./images/ansible-tower-select-lisence.png)
