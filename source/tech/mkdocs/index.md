@@ -1,1 +1,6 @@
 # Index
+
+```sh
+mkdocs build
+```
+

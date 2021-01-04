@@ -1,5 +1,5 @@
 # Project information
-site_name: My Docs
+site_name: nnstt1 memo
 site_author: nnstt1
 
 # Repository
@@ -44,9 +44,12 @@ markdown_extensions:
 # Page tree
 nav:
   - Tech:
+    - index.md
     - mkdocs:
       - ./tech/mkdocs/index.md
     - Ansible:
       - ./tech/ansible/index.md
     - Prometheus:
       - ./tech/prometheus/snmp-exporter.md
+    - VMware:
+      - ./tech/vmware/esxi.md
