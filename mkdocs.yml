@@ -51,6 +51,8 @@ nav:
     - Ansible:
       - ./tech/ansible/index.md
       - ./tech/ansible/tower.md
+    - Kubernetes:
+      - ./tech/kubernetes/operator/zalando-postgres-operator.md
     - Prometheus:
       - ./tech/prometheus/snmp-exporter.md
     - VMware:

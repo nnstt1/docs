@@ -10,12 +10,13 @@ Ansible Tower が含まれている **Red Hat Ansible Automation Platform** に�
 
 ### Developer Program
 
-Red Hat Developer Program 
+Red Hat Developer Program に登録すると利用できる開発用ライセンスです。
+
 [https://developers.redhat.com/products/ansible/getting-started](https://developers.redhat.com/products/ansible/getting-started)
 
 ## インストール
 
-### 前提条件
+### OS
 
 インストール先の OS は **RHEL 8.3** を使用します。
 Ansible Tower の次期メジャーバージョンでは RHEL 7 や CentOS がサポート対象外となるためです。
