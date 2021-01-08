@@ -4,7 +4,7 @@ Zalando 社が開発している Postgres Operator をデプロイする手順�
 
 ## Operator デプロイ
 
-[公式ドキュメント](https://github.com/zalando/postgres-operator/blob/v1.6.0/docs/quickstart.md#deployment-options)
+:fa-external-link: [公式ドキュメント](https://github.com/zalando/postgres-operator/blob/v1.6.0/docs/quickstart.md#deployment-options){target=_blank}
 
 3種類のデプロイ方法があります。
 
@@ -110,6 +110,7 @@ kubectl port-forward $PGMASTER 6432:5432
 
 kubectl get secret postgres.acid-example.credentials -o 'jsonpath={.data.password}' | base64 -d
 export PGSSLMODE=require
+psql -U postgres -h localhost -p 6432
 ```
 
 ## CentOS 7 への psql インストール

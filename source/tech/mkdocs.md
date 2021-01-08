@@ -5,7 +5,7 @@
 ## インストール
 
 ```sh
-pip install mkdocs mkdocs-material mkdocs-minify-plugin
+pip install mkdocs mkdocs-material mkdocs-minify-plugin fontawesome-markdown
 ```
 
 ## ビルド
