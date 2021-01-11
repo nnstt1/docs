@@ -29,11 +29,25 @@ kubectl create -f manifests/api-service.yaml
 
 ## Web UI デプロイ
 
+Web UI から PostgreSQL クラスタを作成・管理できます。
 ### マニュアル
+
+Web UI 用のマニフェストを使ってデプロイします。
 
 ```sh
 kubectl apply -f ui/manifests/
 ```
+
+Web UI は任意の namespace を管理対象とします。
+deployment.yaml の `TARGET_NAMESPACE` に **"*"** を指定することで、全 namespace を対象とすることができます。
+
+```yaml
+# deployment.yaml
+env:
+  - name: "TARGET_NAMESPACE"
+    value: "default"    # "*" に変更
+```
+
 
 !!! attention
     kustomize のマニフェストで以下のエラーが出てデプロイできてません。
