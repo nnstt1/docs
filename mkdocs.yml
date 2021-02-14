@@ -49,18 +49,15 @@ extra_css:
 
 # Page tree
 nav:
-  - Tech:
-    - index.md
-    - MkDocs:
-      - ./tech/mkdocs.md
-    - Ansible:
-      - ./tech/ansible/index.md
-      - ./tech/ansible/tower.md
-    - Kubernetes:
-      - ./tech/kubernetes/operator/zalando-postgres-operator.md
-    - Prometheus:
-      - ./tech/prometheus/snmp-exporter.md
-    - VMware:
-      - ./tech/vmware/esxi.md
-  - DIY:
-    - ./diy/about.md
+  - index.md
+  - MkDocs:
+    - ./mkdocs.md
+  - Ansible:
+    - ./ansible/index.md
+    - ./ansible/tower.md
+  - Kubernetes:
+    - ./kubernetes/operator/zalando-postgres-operator.md
+  - Prometheus:
+    - ./prometheus/snmp-exporter.md
+  - VMware:
+    - ./vmware/esxi.md
