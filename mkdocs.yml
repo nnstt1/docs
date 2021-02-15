@@ -56,8 +56,17 @@ nav:
     - ./ansible/index.md
     - ./ansible/tower.md
   - Kubernetes:
-    - ./kubernetes/operator/zalando-postgres-operator.md
+    - ./kubernetes/argocd.md
+    - ./kubernetes/container-runtime.md
+    - ./kubernetes/istio.md
+    - ./kubernetes/maintenance.md
+    - ./kubernetes/metallb.md
+    - ./kubernetes/velero.md
+    - Operator:
+      - ./kubernetes/operator/rook.md
+      - ./kubernetes/operator/zalando-postgres-operator.md
   - Prometheus:
+    - ./prometheus/prometheus.md
     - ./prometheus/snmp-exporter.md
   - VMware:
     - ./vmware/esxi.md

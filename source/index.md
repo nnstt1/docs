@@ -1,3 +1,2 @@
-# About
+# Author
 
-技術メモです。
