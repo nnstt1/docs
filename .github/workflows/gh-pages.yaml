@@ -31,4 +31,4 @@ jobs:
           deploy_key: ${{ secrets.DEPLOY_KEY }}
           external_repository: nnstt1/nnstt1.github.io
           publish_branch: main
-          publish_dir: ./docs
+          publish_dir: ./site

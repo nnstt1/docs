@@ -6,9 +6,6 @@ site_author: nnstt1
 repo_name: nnstt1/docs
 repo_url: https://github.com/nnstt1/docs
 
-docs_dir: source
-site_dir: docs
-
 # Configuration
 theme:
   name: material
