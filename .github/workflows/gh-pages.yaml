@@ -30,5 +30,5 @@ jobs:
         env:
           PERSONAL_TOKEN: ${{ secrets.TOKEN }}
           EXTERNAL_REPOSITORY: nnstt1/nnstt1.github.io
-          PUBLISH_BRANCH: master
+          PUBLISH_BRANCH: main
           PUBLISH_DIR: ./public
