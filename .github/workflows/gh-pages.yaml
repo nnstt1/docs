@@ -26,9 +26,9 @@ jobs:
           mkdocs build
 
       - name: deploy
-        uses: peaceiris/actions-gh-pages@v2.5.0
-        env:
-          PERSONAL_TOKEN: ${{ secrets.TOKEN }}
-          EXTERNAL_REPOSITORY: nnstt1/nnstt1.github.io
-          PUBLISH_BRANCH: main
-          PUBLISH_DIR: ./public
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          deploy_key: ${{ secrets.DEPLOY_KEY }}
+          external_repository: nnstt1/nnstt1.github.io
+          publish_branch: main
+          publish_dir: ./docs
