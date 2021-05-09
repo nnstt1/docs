@@ -1,26 +1,47 @@
 # Rook
 
-[Rook](https://rook.github.io/docs/rook/master/) は Kubernetes に各種ストレージソリューション (Ceph, Cassandra, etc...) を提供してくれるストレージオーケストレータです。
+[Rook](https://rook.github.io/){target=_blank} は Kubernetes に各種ストレージソリューション (Ceph, Cassandra, etc...) を提供してくれるストレージオーケストレータです。
 
 ここでは、Rook を使って Ceph クラスタを構築し、K8s クラスタにブロックストレージとオブジェクトストレージの StorageClass を提供する手順を説明します。
 
+!!! note
+    本手順は v1.5 をベースにしています。
+
 ## Install
+
+[Ceph Storage Quickstart](https://rook.github.io/docs/rook/v1.5/ceph-quickstart.html){target=_blank}
+
+### Rook Ceph
 
 最新版の Rook をリポジトリから clone して、Rook を K8s クラスタにインストールします。
 
 ```bash
-$ git clone --single-branch --branch release-1.5 https://github.com/rook/rook.git
-$ cd rook/cluster/examples/kubernetes/
-$ kubectl apply -f rook/cluster/examples/kubernetes/crds.yaml
-$ kubectl apply -f rook/cluster/examples/kubernetes/common.yaml
-$ kubectl apply -f rook/cluster/examples/kubernetes/operator.yaml
+$ git clone --single-branch --branch v1.5.7 https://github.com/rook/rook.git
+$ cd rook/cluster/examples/kubernetes/ceph
+$ kubectl apply -f crds.yaml
+$ kubectl apply -f common.yaml
+$ kubectl apply -f operator.yaml
+$ kubectl apply -f cluster.yaml
 ```
+
+Rook による OSD のデプロイ方法は2通りあります。
+
+- Host-based OSDs/MONs
+- PVC-based OSDs/MONs (OSD on PVC)
+
+デプロイ方法の違いについては、こちらのスライドが参考になります。
+
+- [Rook v1.1なら出来るPVC-basedな分散ストレージ](https://speakerdeck.com/tzkoba/rook-v1-dot-1narachu-lai-rupvc-basednafen-san-sutorezi){target=_blank}
+- [Rook/Ceph OSD on PVC in practice](https://speakerdeck.com/sat/ceph-osd-on-pvc-in-practice){target=_blank}
+
 
 ### Block Storage
 
+RBD 用のマニフェストをデプロイします。
+このマニフェストには `StorageClass` リソースの他に、`CephBlockPool` というカスタムリソースが使用されています。
+
 ```bash
-$ kubectl apply -f rook/cluster/examples/kubernetes/cluster.yaml
-$ kubectl apply -f rook/cluster/examples/kubernetes/storageclass.yaml
+$ kubectl apply -f csi/rbd/storageclass.yaml
 
 # ceph-tools コンテナにログインして Ceph の構築状況を確認
 $ kubectl apply -f toolbox.yaml
@@ -33,7 +54,7 @@ $ ceph status
 マニフェストの PersistentVolume で以下の StorageClass を指定することで、Ceph Block Storage を利用できる。
 
 ```bash
-kubectl get sc
+$ kubectl get sc
 NAME              PROVISIONER                  RECLAIMPOLICY   VOLUMEBINDINGMODE   ALLOWVOLUMEEXPANSION   AGE
 rook-ceph-block   rook-ceph.rbd.csi.ceph.com   Delete          Immediate           true                   57d
 ```
@@ -45,14 +66,14 @@ rook-ceph-block   rook-ceph.rbd.csi.ceph.com   Delete          Immediate        
 ### Deploy
 
 ```bash
-kubectl apply -f rook/cluster/examples/kubernetes/ceph/dashboard-loadbalancer.yaml
+$ kubectl apply -f rook/cluster/examples/kubernetes/ceph/dashboard-loadbalancer.yaml
 ```
 
 ### Login
 
 ```bash
 # パスワード確認
-kubectl -n rook-ceph get secret rook-ceph-dashboard-password -o jsonpath="{['data']['password']}" | base64 --decode && echo
+$ kubectl -n rook-ceph get secret rook-ceph-dashboard-password -o jsonpath="{['data']['password']}" | base64 --decode && echo
 ```
 
 https://192.168.2.244:8443
@@ -68,7 +89,7 @@ Rook をクリーンアップする場合の手順です。
 ### Rook 関連データ削除
 
 ```bash
-rm -rf /var/lib/rook
+$ rm -rf /var/lib/rook
 ```
 
 ### ブロックデバイス初期化
@@ -78,20 +99,20 @@ rm -rf /var/lib/rook
 ```sh
 #!/usr/bin/env bash
 # https://github.com/rook/rook/blob/master/Documentation/ceph-teardown.md
-DISK="/dev/sdb"
+$ DISK="/dev/sdb"
 # Zap the disk to a fresh, usable state (zap-all is important, b/c MBR has to be clean)
 # You will have to run this step for all disks.
-sgdisk --zap-all $DISK
+$ sgdisk --zap-all $DISK
 # Clean hdds with dd
-dd if=/dev/zero of="$DISK" bs=1M count=100 oflag=direct,dsync
+$ dd if=/dev/zero of="$DISK" bs=1M count=100 oflag=direct,dsync
 # Clean disks such as ssd with blkdiscard instead of dd
-blkdiscard $DISK
+$ blkdiscard $DISK
 
 # These steps only have to be run once on each node
 # If rook sets up osds using ceph-volume, teardown leaves some devices mapped that lock the disks.
-ls /dev/mapper/ceph-* | xargs -I% -- dmsetup remove %
+$ ls /dev/mapper/ceph-* | xargs -I% -- dmsetup remove %
 # ceph-volume setup can leave ceph-<UUID> directories in /dev (unnecessary clutter)
-rm -rf /dev/ceph-*
+$ rm -rf /dev/ceph-*
 ```
 
 
