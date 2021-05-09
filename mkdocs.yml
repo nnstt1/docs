@@ -67,3 +67,7 @@ nav:
     - ./prometheus/snmp-exporter.md
   - VMware:
     - ./vmware/esxi.md
+  - Raspi Ceph:
+    - ./raspi-ceph/initial-setup.md
+    - ./raspi-ceph/cephadm.md
+    - ./raspi-ceph/ceph-grafana.md
