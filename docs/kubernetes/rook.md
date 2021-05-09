@@ -11,8 +11,6 @@
 
 [Ceph Storage Quickstart](https://rook.github.io/docs/rook/v1.5/ceph-quickstart.html){target=_blank}
 
-### Rook Ceph
-
 最新版の Rook をリポジトリから clone して、Rook を K8s クラスタにインストールします。
 
 ```bash
@@ -49,9 +47,7 @@ $ kubectl -n rook-ceph exec -it $(kubectl -n rook-ceph get pod -l "app=rook-ceph
 $ ceph status
 ```
 
-構築完了後には StorageClass が利用可能となる。
-
-マニフェストの PersistentVolume で以下の StorageClass を指定することで、Ceph Block Storage を利用できる。
+構築完了後には以下の StorageClass が利用可能となります。
 
 ```bash
 $ kubectl get sc
@@ -59,26 +55,15 @@ NAME              PROVISIONER                  RECLAIMPOLICY   VOLUMEBINDINGMODE
 rook-ceph-block   rook-ceph.rbd.csi.ceph.com   Delete          Immediate           true                   57d
 ```
 
-### Object Storage
 
 ## Dashboard
 
-### Deploy
-
 ```bash
 $ kubectl apply -f rook/cluster/examples/kubernetes/ceph/dashboard-loadbalancer.yaml
-```
 
-### Login
-
-```bash
 # パスワード確認
 $ kubectl -n rook-ceph get secret rook-ceph-dashboard-password -o jsonpath="{['data']['password']}" | base64 --decode && echo
 ```
-
-https://192.168.2.244:8443
-
-管理者ユーザは admin
 
 
 ## Cleanup
@@ -125,4 +110,51 @@ Kubernetes v1.20 から Feature Gate `CSIVolumeFSGroupPolicy` が Beta に昇格
 ```ini
 # /var/lib/kubelet/kubeadm-flags.env
 KUBELET_KUBEADM_ARGS="--network-plugin=cni --pod-infra-container-image=k8s.gcr.io/pause:3.2 --container-runtime=remote --container-runtime-endpoint=/run/containerd/containerd.sock --feature-gates=CSIVolumeFSGroupPolicy=false"
+```
+
+
+## Extenal Cluster
+
+```bash
+$ kubectl apply -f crds.yaml
+$ kubectl apply -f common.yaml
+$ kubectl apply -f operator.yaml
+$ kubectl apply -f common-external.yaml
+```
+
+### 環境変数
+
+- `NAMESPACE`
+- `ROOK_EXTERNAL_FSID`: Ceph クラスタで `ceph fsid` コマンドを実行して fsid を確認して設定します。
+- `ROOK_EXTERNAL_CEPH_MON_DATA`: MON の情報を設定します。
+- `ROOK_EXTERNAL_ADMIN_SECRET`: Ceph クラスタで `ceph auth get-key client.admin` コマンドを実行して、Ceph クラスタの admin シークレットキーを取得します。
+
+Ceph ノードで External Cluster 環境変数として使う情報を取得します。
+
+```bash
+$ bash create-external-cluster-resources.sh
+export ROOK_EXTERNAL_USER_SECRET=AQBMvFBgH++mJBAAJKv/9LAWvc4I09WfycMLUg==
+export ROOK_EXTERNAL_USERNAME=client.healthchecker
+export CSI_RBD_NODE_SECRET_SECRET=AQB6aU1gcIRuHRAAM20ehPo8QwTrPUy2Eea4DA==
+export CSI_RBD_PROVISIONER_SECRET=AQB5aU1gSl1dOxAAV81b2Puiih2VBajLlHq7Cw==
+export CSI_CEPHFS_NODE_SECRET=AQB7aU1gcfuQHBAAqliipwmEdNo6jdFNJaI5oA==
+export CSI_CEPHFS_PROVISIONER_SECRET=AQB6aU1gW3RzOhAAp39Bq0a0sMBnyWd7Bs9bbg==
+successfully created users and keys, execute the above commands and run import-external-cluster.sh to inject them in your Kubernetes cluster.
+```
+
+```bash
+$ export NAMESPACE=rook-ceph-external
+$ export ROOK_EXTERNAL_FSID=c70278a6-8275-11eb-ab03-dca6329a21a7
+$ export ROOK_EXTERNAL_CEPH_MON_DATA=a=192.168.1.21:6789,b=192.168.1.22:6789,c=192.168.1.23:6789
+$ export ROOK_EXTERNAL_ADMIN_SECRET=AQCdKEpglwQYNhAAd0rszoHkeCD+JJrz2YsSzA==
+$ bash import-external-cluster.sh
+```
+
+### CephCluster デプロイ
+
+
+https://github.com/rook/rook/issues/5732#issuecomment-756042524
+
+```bash
+$ kubectl apply -f cluster-external.yaml
 ```

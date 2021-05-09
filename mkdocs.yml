@@ -59,9 +59,8 @@ nav:
     - ./kubernetes/maintenance.md
     - ./kubernetes/metallb.md
     - ./kubernetes/velero.md
-    - Operator:
-      - ./kubernetes/operator/rook.md
-      - ./kubernetes/operator/zalando-postgres-operator.md
+    - ./kubernetes/rook.md
+    - ./kubernetes/zalando-postgres-operator.md
   - Prometheus:
     - ./prometheus/prometheus.md
     - ./prometheus/snmp-exporter.md
