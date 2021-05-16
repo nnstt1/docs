@@ -155,7 +155,7 @@ $ kubectl minio tenant create minio-tenant-1 \
 Tenant 'minio-tenant-1' created in 'minio-tenant-1' Namespace
 
   Username: admin 
-  Password: b4e71593-29b4-4f93-8673-cf43009f74bf
+  Password: ac8a676c-d4a3-4cb0-98b9-c432f3c9cd5c 
   Note: Copy the credentials to a secure location. MinIO will not display these again.
 
 +-------------+------------------------+----------------+--------------+--------------+
@@ -197,8 +197,149 @@ Events:
   Warning  FailedMount             8s (x9 over 2m16s)  kubelet                  MountVolume.SetUp failed for volume "minio-tenant-1-tls" : secret "minio-tenant-1-tls" not found
 ```
 
+### 2021/5/13
+
+Issue を参考にデバッグ用コンテナで証明書コピーしてみました。
+https://github.com/minio/operator/issues/459#issuecomment-774319087
+
+```bash
+$ kubectl run my-shell  -i --tty --image miniodev/debugger -- bash
+root@my-shell:/\# cp /var/run/secrets/kubernetes.io/serviceaccount/ca.crt /etc/ssl/certs/
+root@my-shell:/\# mc config host add myminio https://minio.minio-tenant-1.svc.cluster.local admin b4e71593-29b4-4f93-8673-cf43009f74bf
+mc: <ERROR> Unable to initialize new alias from the provided credentials. Get "https://minio.minio-tenant-1.svc.cluster.local/probe-bucket-sign-ezqrq20bdldg/?location=": dial tcp 10.97.131.201:443: connect: connection refused.
+```
+
+パスワードがあっていなかったようなので、テナント再作成したところ、新しいテナントでは `minio-tenant-1-tls` Sercret が作成されて Pod も正常に起動しました。
+
+### 2021/5/14
+
+Operator を削除してからやり直したところ、`kubectl minio tenant create` を実行して 4min ほど放置したら `minio-tenant-1-tls` も作成されました。
+
+```bash
+$ kubectl get secret
+NAME                            TYPE                                  DATA   AGE
+default-token-ntlzm             kubernetes.io/service-account-token   3      2m24s
+minio-tenant-1-console-secret   Opaque                                4      2m22s
+minio-tenant-1-console-tls      Opaque                                2      62s
+minio-tenant-1-creds-secret     Opaque                                2      2m22s
+minio-tenant-1-tls              Opaque                                2      2m2s
+operator-tls                    Opaque                                1      2m17s
+operator-webhook-secret         Opaque                                3      2m17s
+
+$ kubectl get pods
+NAME                    READY   STATUS    RESTARTS   AGE
+minio-tenant-1-console-6b7488946f-2mvkf   1/1     Running   0          2m43s
+minio-tenant-1-console-6b7488946f-6djht   1/1     Running   0          2m43s
+minio-tenant-1-ss-0-0                     1/1     Running   0          3m43s
+```
+
+再度試したところ、今度は作られませんでした。
+CSR リソースを確認したところ、前回作られたと思われるものが残っていました。
+
+```bash
+$ kubectl get csr
+NAME                                        AGE   SIGNERNAME                     REQUESTOR                                             CONDITION
+minio-tenant-1-console-minio-tenant-1-csr   44m   kubernetes.io/legacy-unknown   system:serviceaccount:minio-operator:minio-operator   Approved,Issued
+minio-tenant-1-minio-tenant-1-csr           45m   kubernetes.io/legacy-unknown   system:serviceaccount:minio-operator:minio-operator   Approved,Issued
+operator-minio-operator-csr                 46m   kubernetes.io/legacy-unknown   system:serviceaccount:minio-operator:minio-operator   Approved,Issued
+```
+
+CSR リソースを削除して再々度チャレンジ、`kubectl minio init` 後の CSR リソース。
+
+```bash
+$ kubectl get csr
+NAME                          AGE   SIGNERNAME                     REQUESTOR                                             CONDITION
+operator-minio-operator-csr   96s   kubernetes.io/legacy-unknown   system:serviceaccount:minio-operator:minio-operator   Approved,Issued
+```
+
+`kubectl minio tenant create` 後。
+
+```bash
+$ kubectl get csr
+NAME                                        AGE    SIGNERNAME                     REQUESTOR                                             CONDITION
+minio-tenant-1-console-minio-tenant-1-csr   17s    kubernetes.io/legacy-unknown   system:serviceaccount:minio-operator:minio-operator   Approved,Issued
+minio-tenant-1-minio-tenant-1-csr           77s    kubernetes.io/legacy-unknown   system:serviceaccount:minio-operator:minio-operator   Approved,Issued
+operator-minio-operator-csr                 4m5s   kubernetes.io/legacy-unknown   system:serviceaccount:minio-operator:minio-operator   Approved,Issued
+```
+
+新しく CSR リソースが作られ、`minio-tenant-1-tls` も作成されました。
+
+
+## 外部公開用サービス
+
+Kubernetes クラスタ外のアプリケーションから MinIO テナントに接続するためには Ingress や Load Balancer が必要です。
+
+今回は MinIO 用の Load Balancer を作成します。
+
+### MinIO
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: minio-tenant-1
+  name: minio-loadbalancer
+  labels:
+    component: minio-tenant-1
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: minio-tenant-1.nnstt1.work.    # ExternalDNS 用アノテーション
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 9000
+      targetPort: 9000
+      protocol: TCP
+  selector:
+    v1.min.io/tenant: minio-tenant-1
+```
+
+### Console
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: minio-tenant-1
+  name: console-loadbalancer
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: minio-console.nnstt1.work.    # ExternalDNS 用アノテーション
+spec:
+  type: LoadBalancer
+  ports:
+    - name: https-console
+      port: 9443
+      protocol: TCP
+      targetPort: 9443
+  selector:
+    v1.min.io/console: minio-tenant-1-console
+```
 
 ## アンインストール
+
+### テナント削除
+
+MinIO Operator で作成したテナントを削除する方法です。
+
+tenant リソースは namespace 毎に作成されるため、`-n` オプションで対象の namespace を指定してください。
+
+```bash
+# テナント削除
+$ kubectl minio tenant delete minio-tenant-1 -n minio-tenant-1
+
+This will delete the Tenant minio-tenant-1 and ALL its data. Do you want to proceed?: y
+Deleting MinIO Tenant minio-tenant-1
+Deleting MinIO Tenant Credentials Secret minio-tenant-1-creds-secret
+Deleting MinIO Tenant Console Secret minio-tenant-1-console-secret
+
+# namespace 確認
+$ kubectl get pods -n minio-tenant-1
+No resources found in minio-tenant-1 namespace.
+$ kubectl get secret -n minio-tenant-1
+NAME                  TYPE                                  DATA   AGE
+default-token-swx2m   kubernetes.io/service-account-token   3      2d
+```
+
+### Operator 削除
 
 Kubernetes クラスタから MinIO Operator を削除する方法です。
 
