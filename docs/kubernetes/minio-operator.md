@@ -5,28 +5,96 @@ S3 互換のオブジェクトストレージである MinIO を Kubernetes 上�
 
 ## 前提条件
 
-- **Kubernetes クラスタのバージョンが 1.17.0 以上であること**
+### バージョン
 
-    1.17.0 未満だったら Kubernetes 公式を参照してアップグレードします。
+**`Kubernetes クラスタのバージョンが 1.17.0 以上であること`**
 
-    ```bash
-    $ kubectl version
-    Client Version: version.Info{Major:"1", Minor:"21", GitVersion:"v1.21.0", GitCommit:"cb303e613a121a29364f75cc67d3d580833a7479", GitTreeState:"clean", BuildDate:"2021-04-08T16:31:21Z", GoVersion:"go1.16.1", Compiler:"gc", Platform:"linux/amd64"}
-    Server Version: version.Info{Major:"1", Minor:"21", GitVersion:"v1.21.0", GitCommit:"cb303e613a121a29364f75cc67d3d580833a7479", GitTreeState:"clean", BuildDate:"2021-04-08T16:25:06Z", GoVersion:"go1.16.1", Compiler:"gc", Platform:"linux/amd64"}
+1.17.0 未満だったら Kubernetes 公式を参照してアップグレードします。
+
+```bash
+$ kubectl version
+Client Version: version.Info{Major:"1", Minor:"21", GitVersion:"v1.21.0", GitCommit:"cb303e613a121a29364f75cc67d3d580833a7479", GitTreeState:"clean", BuildDate:"2021-04-08T16:31:21Z", GoVersion:"go1.16.1", Compiler:"gc", Platform:"linux/amd64"}
+Server Version: version.Info{Major:"1", Minor:"21", GitVersion:"v1.21.0", GitCommit:"cb303e613a121a29364f75cc67d3d580833a7479", GitTreeState:"clean", BuildDate:"2021-04-08T16:25:06Z", GoVersion:"go1.16.1", Compiler:"gc", Platform:"linux/amd64"}
+```
+
+### namespace
+
+**`Kubernetes クラスタに MinIO テナント用の namespace があること`**
+
+テナント毎に namespace を作成します。
+
+```bash
+$ kubectl create namespace minio-tenant-1
+namespace/minio-tenant-1 created
+```
+
+### StorageClass
+
+**`Kubernetes クラスタに volumeBindingMode: WaitForFirstConsumer の StorageClass があること`**
+
+MinIO Operator が使用する Storage Class を用意する方法として `Local Volume` と `Rook/Ceph` の 2 通り紹介します。
+
+**Local Volume**
+
+:   Local Volume を使う方法は[公式ドキュメント :fa-external-link:](https://docs.min.io/minio/k8s/tenant-management/deploy-minio-tenant.html#configure-the-persistent-volumes){target=_blank}にも記載があります。
+
+    まず、Kubernetes の 各 Worker ノードのローカルストレージを使用する StorageClass を作成します。
+
+    ```yaml
+    apiVersion: storage.k8s.io/v1
+    kind: StorageClass
+    metadata:
+      name: local-storage
+    provisioner: kubernetes.io/no-provisioner
+    volumeBindingMode: WaitForFirstConsumer
     ```
 
-- **Kubernetes クラスタに MinIO テナント用の namespace があること**
+    Local Volume はダイナミックプロビジョニングができないため、個別に PersistentVolume を作成します。
 
-    テナント毎に namespace を作成します。
-
-    ```bash
-    $ kubectl create namespace minio-tenant-1
-    namespace/minio-tenant-1 created
+    ```yaml
+    apiVersion: v1
+    kind: PersistentVolume
+    metadata:
+      name: PV-NAME
+    spec:
+      capacity:
+        storage: 4Gi
+      volumeMode: Filesystem
+      accessModes:
+        - ReadWriteOnce
+      persistentVolumeReclaimPolicy: Retain
+      storageClass: local-storage
+      local:
+        path: /mnt/minio
+      nodeAffinity:
+        required:
+          nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                  - NODE-NAME
     ```
 
-- **Kubernetes クラスタに `volumeBindingMode: WaitForFirstConsumer` の StorageClass があること**
+    `metadata.name` 
+    :   PersistentVolume の名前を定義します。
 
-    Rook/Ceph を使って MinIO 用の StorageClass を作成します。
+    `spec.capacity.storage`
+    :   PersistentVolume で確保するストレージサイズを指定します。
+
+    `spec.storage-class`
+    :   作成した StorageClass の名前を指定します。
+
+    `spec.nodeAffinity`
+    :   ローカルストレージを持つノードの名前を指定します。
+        ここで指定されたノードのストレージが消費されます。
+
+    `spec.local.path`
+    :   PersistentVolume をノードにマウントするパスを指定します。
+
+**Rook/Ceph**
+
+:   Rook/Ceph を導入済みの環境であれば、MinIO Operator 用の CephBlockPool と StorageClass を作成して使うことが可能です。
 
     ```yaml
     apiVersion: ceph.rook.io/v1
@@ -62,9 +130,12 @@ S3 互換のオブジェクトストレージである MinIO を Kubernetes 上�
     volumeBindingMode: WaitForFirstConsumer
     ```
 
-- **Krew がインストールされていること**
+### Krew
 
-    [こちらのページ](./krew.md) を参照して Krew をインストールします。
+**`Krew がインストールされていること`**
+
+[こちらのページ](./krew.md) を参照して Krew をインストールします。
+
 
 ## インストール
 
@@ -155,7 +226,7 @@ $ kubectl minio tenant create minio-tenant-1 \
 Tenant 'minio-tenant-1' created in 'minio-tenant-1' Namespace
 
   Username: admin 
-  Password: ac8a676c-d4a3-4cb0-98b9-c432f3c9cd5c 
+  Password: 4c467817-1786-418e-a346-370b3c7c50ae 
   Note: Copy the credentials to a secure location. MinIO will not display these again.
 
 +-------------+------------------------+----------------+--------------+--------------+
