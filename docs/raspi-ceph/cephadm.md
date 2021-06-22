@@ -52,7 +52,7 @@ $ cephadm install ceph-common
 `cephadm bootstrap` コマンドで Ceph クラスタを構築します。
 
 ```bash
-$ cephadm bootstrap --mon-ip 192.168.1.21 --skip-monitoring-stack
+$ cephadm bootstrap --mon-ip 192.168.2.11 --skip-monitoring-stack
 ```
 
 - `--skip-monitoring-stack`
