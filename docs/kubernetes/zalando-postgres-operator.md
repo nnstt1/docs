@@ -4,7 +4,7 @@ Zalando 社が開発している Postgres Operator をデプロイする手順�
 
 ## Operator デプロイ
 
-:fa-external-link: [公式ドキュメント](https://github.com/zalando/postgres-operator/blob/v1.6.0/docs/quickstart.md#deployment-options){target=_blank}
+[公式ドキュメント :fa-external-link:](https://github.com/zalando/postgres-operator/blob/v1.6.0/docs/quickstart.md#deployment-options){target=_blank}
 
 3種類のデプロイ方法があります。
 
@@ -142,7 +142,7 @@ sudo yum install -y postgresql13
 
 ## 証明書
 
-[Custom TLS certificates](https://postgres-operator.readthedocs.io/en/latest/user/#custom-tls-certificates)
+[Custom TLS certificates :fa-external-link:](https://postgres-operator.readthedocs.io/en/latest/user/#custom-tls-certificates){target=_blank}
 
 デフォルトではクラスタ作成時に TLS 証明書が自動的に作成されるので、以下の手順でカスタム証明書を設定します。
 
