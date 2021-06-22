@@ -1,17 +1,14 @@
 # Velero
 
-Velero は、Kubernetes のリソースや PV (Persistent Volume) のバックアップ・リストアをするための OSS です。
-
-https://velero.io/
+[Velero :fa-external-link:](https://velero.io/){target=_blank} は、Kubernetes のリソースや PV (Persistent Volume) のバックアップ・リストアをするための OSS です。
 
 Velero はオブジェクトストレージにバックアップデータを格納します。
 オブジェクトストレージを用意する方法はいくつかあります。
 
+
 ## MinIO
 
-オブジェクトストレージを MinIO で用意します。
-
-https://velero.io/docs/v1.5/contributions/minio/
+オブジェクトストレージを MinIO で用意します。(参考: [Quick start evaluation install with Minio :fa-external-link:](https://velero.io/docs/main/contributions/minio/){target=_blank})
 
 ### Velero デプロイ
 
@@ -24,7 +21,6 @@ velero install \
     --use-volume-snapshots=false \
     --backup-location-config region=minio,s3ForcePathStyle="true",s3Url=http://minio.minio.svc:9000
 ```
-
 
 
 ## Velero & Rook Ceph
@@ -76,6 +72,7 @@ velero install \
     --backup-location-config region=us-east-1,s3ForcePathStyle="true",s3Url=http://rook-ceph-rgw-my-store.rook-ceph.svc
 ```
 
+
 ## 検証
 
 ```bash
@@ -102,13 +99,14 @@ velero restore create --from-backup nginx-backup2
 # リストアリソースの確認
 velero restore get
 kubectl get deployments --namespace=nginx-example
-
 ```
 
 
 ## アンインストール
 
-https://velero.io/docs/v1.5/uninstalling/
+クラスタから Velero をアンインストールする手順です。
+
+[Uninstalling Velero :fa-external-link:](https://velero.io/docs/main/uninstalling/){target=_blank}
 
 ```bash
 kubectl delete namespace/velero clusterrolebinding/velero
