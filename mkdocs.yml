@@ -66,6 +66,7 @@ nav:
   - Prometheus:
     - ./prometheus/prometheus.md
     - ./prometheus/snmp-exporter.md
+    - ./prometheus/kube-prometheus.md
   - VMware:
     - ./vmware/esxi.md
   - Raspi Ceph:
