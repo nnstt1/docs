@@ -158,3 +158,17 @@ https://github.com/rook/rook/issues/5732#issuecomment-756042524
 ```bash
 $ kubectl apply -f cluster-external.yaml
 ```
+
+
+## Remove an OSD
+
+https://rook.io/docs/rook/v1.5/ceph-osd-mgmt.html#remove-an-osd
+
+Host-based クラスタから OSD を除外します。
+[osd-purge.yaml](https://github.com/rook/rook/blob/release-1.5/cluster/examples/kubernetes/ceph/osd-purge.yaml){target=_blank} 内の `<OSD-IDs>` に除外する OSD の ID を指定して、以下のコマンドを実行します。
+
+```bash
+kubectl scale deploy rook-ceph-operator --replicas=0
+kubectl apply -f osd-purge.yml
+kubectl scale deploy rook-ceph-operator --replicas=1
+```
