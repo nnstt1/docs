@@ -48,8 +48,9 @@ extra_css:
 # Page tree
 nav:
   - index.md
-  - MkDocs:
+  - HomeLab:
     - ./mkdocs.md
+    - ./powerdns.md
   - Ansible:
     - ./ansible/index.md
     - ./ansible/tower.md
