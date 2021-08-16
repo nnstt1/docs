@@ -110,10 +110,9 @@ spec:
 
 !!! attention
     Web UI 経由でデプロイする場合に volume.storageClass を指定できません。
-    そのままでは PVC が Pending のままでエラーとなります。
+    Kubernetes クラスタにデフォルト StorageClass を設定していないと PVC が Pending のままでエラーとなります。
 
-    そのため、Rook Ceph で作成した storageClass などを指定する場合はマニフェストを使います。
-    Web UI では基本的な情報を埋め込んだマニフェストを作成し、細かい設定はマニフェストに直接記述するのが良さそうです。
+    [Change the default StorageClass](https://kubernetes.io/docs/tasks/administer-cluster/change-default-storage-class/) を参照してデフォルト StorageClass を設定します。
 
 ## 確認
 
