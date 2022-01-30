@@ -9,9 +9,9 @@ Raspberry Pi 4 に Ceph クラスタを構築するための初期設定をお�
 ## rootfs 拡張
 
 ```bash
-$ df -h
-$ /usr/bin/rootfs-expand
-$ df -h
+df -h
+/usr/bin/rootfs-expand
+df -h
 ```
 
 ## ロケール
@@ -50,3 +50,12 @@ $ sysctl -p
 ```bash
 $ hostnamectl set-hostname ceph1
 ```
+
+## ユーザ
+
+|ホスト|ユーザ|パスワード|
+|---|---|---|
+|ceph1|root|centos|
+|ceph2|root|rockylinux|
+|ceph2|rocky|rockylinux|
+|ceph3|root|almalinux|
