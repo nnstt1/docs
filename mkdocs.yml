@@ -51,6 +51,7 @@ nav:
   - HomeLab:
     - ./mkdocs.md
     - ./powerdns.md
+    - ./esxi.md
   - Ansible:
     - ./ansible/index.md
     - ./ansible/tower.md
@@ -68,8 +69,6 @@ nav:
     - ./prometheus/prometheus.md
     - ./prometheus/snmp-exporter.md
     - ./prometheus/kube-prometheus.md
-  - VMware:
-    - ./vmware/esxi.md
   - Raspi Ceph:
     - ./raspi-ceph/initial-setup.md
     - ./raspi-ceph/cephadm.md
